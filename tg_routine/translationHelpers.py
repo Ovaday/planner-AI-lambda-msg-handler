@@ -1,5 +1,6 @@
 from main import secrets, dynamodb_client
 
+
 def get_translation(label: str, language: str):
     data = dynamodb_client.get_item(
         TableName=secrets['DYNAMO_DB_TRANSLATIONS'],
@@ -17,4 +18,3 @@ def get_translation(label: str, language: str):
         raise Exception(f'No {language} translation provided for: {label}')
 
     return translations[language]['S']
-
