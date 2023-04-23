@@ -1,19 +1,22 @@
-import sentry_sdk, asyncio
+import sentry_sdk, asyncio, boto3
 from sentry_sdk import capture_exception, set_user
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 
-from commandHandlers import *
-from messageHandlers import *
 from requestHelpers import *
+
+dynamodb_client = boto3.client('dynamodb')
 
 secrets = get_aws_secrets('DEV_SECRETS_NAME')
 TOKEN = secrets['TG_BOT_TOKEN']
 application = ApplicationBuilder().token(TOKEN).build()
 
+from commandHandlers import *
+from messageHandlers import *
+
 sentry_sdk.init(
-    dsn=secrets("SENTRY_LA_MESSAGES"),
+    dsn=secrets["SENTRY_LA_MESSAGES"],
     integrations=[
         AwsLambdaIntegration(timeout_warning=True),
     ],
