@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Planner-AI-Lambda-Message-Handler-Serverless
+
+Globals:
+  Function:
+    Timeout: 60
+    Runtime: python3.10
+    Architectures:
+      - arm64
+
+Resources:
+  PLAIMSGFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: tg_routine/
+      Handler: main.lambda_handler
+      FunctionUrlConfig:
+        AuthType: NONE
+
+Outputs:
+  TelegramApi:
+    Description: "Lambda Function URL for Pl-AI Msg API"
+    Value:
+      Fn::GetAtt: PLAIMSGFunctionUrl.FunctionUrl
