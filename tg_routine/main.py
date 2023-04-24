@@ -1,8 +1,7 @@
-import sentry_sdk, asyncio, boto3
+import sentry_sdk, asyncio
 from sentry_sdk import capture_exception, set_user
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
+from telegram.ext import ApplicationBuilder
 
 from requestHelpers import *
 
@@ -12,7 +11,7 @@ secrets = get_aws_secrets('DEV_SECRETS_NAME')
 TOKEN = secrets['TG_BOT_TOKEN']
 application = ApplicationBuilder().token(TOKEN).build()
 
-from DatabaseHelpers import set_db_connection
+from DatabaseHelpers.ServiceHelpers import set_db_connection
 db_connection = set_db_connection()
 
 from commandHandlers import *

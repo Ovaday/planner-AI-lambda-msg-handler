@@ -1,7 +1,7 @@
 from main import secrets, dynamodb_client
 
 
-def get_translation(label: str, language: str):
+def get_label(label: str, language: str):
     data = dynamodb_client.get_item(
         TableName=secrets['DYNAMO_DB_TRANSLATIONS'],
         Key={
