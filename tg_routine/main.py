@@ -1,7 +1,8 @@
 import sentry_sdk, asyncio
 from sentry_sdk import capture_exception, set_user
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
-from telegram.ext import ApplicationBuilder
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 import psycopg2
 
 from requestHelpers import *
@@ -29,6 +30,7 @@ db_connection = set_db_connection()
 
 from commandHandlers import *
 from messageHandlers import *
+from audioHandlers import audio
 from messageHelpers import message_specific
 
 sentry_sdk.init(
@@ -66,6 +68,9 @@ async def main(event, context):
 
     echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
     application.add_handler(echo_handler)
+
+    audio_handler = MessageHandler(filters.VOICE, audio)
+    application.add_handler(audio_handler)
 
     try:
         await application.initialize()

@@ -1,4 +1,4 @@
-from main import secrets, dynamodb_client
+from main import *
 
 
 def get_label(label: str, language: str):

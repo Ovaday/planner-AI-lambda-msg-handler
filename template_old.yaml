@@ -11,20 +11,16 @@ Globals:
       - arm64
 
 Resources:
-  AppLambda:
-    Type: AWS::Serverless::Function
+  PLAIMSGFunction:
+    Type: AWS::Serverless::Function 
     Properties:
-      PackageType: Image
-      ImageUri: 'applambda:latest'
-      MemorySize: 1024
-      Description: 'App lambda endpoint (see tags for more info).'
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerContext: ./
-      DockerTag: latest
+      CodeUri: tg_routine/
+      Handler: main.lambda_handler
+      FunctionUrlConfig:
+        AuthType: NONE
 
 Outputs:
   TelegramApi:
     Description: "Lambda Function URL for Pl-AI Msg API"
     Value:
-      Fn::GetAtt: AppLambdaUrl.FunctionUrl
+      Fn::GetAtt: PLAIMSGFunctionUrl.FunctionUrl

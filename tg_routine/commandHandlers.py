@@ -1,9 +1,6 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes
-
-from DatabaseHelpers.ServiceHelpers import *
-from main import db_connection
+from main import *
 from messageHelpers import send_all_admins
+from DatabaseHelpers.ServiceHelpers import resolve_main_params
 from translationHelpers import get_label
 
 

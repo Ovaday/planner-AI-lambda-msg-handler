@@ -3,3 +3,6 @@ requests
 sentry-sdk
 psycopg2-binary
 asgiref
+libsndfile1-dev
+soundfile
+openai
