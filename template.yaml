@@ -3,13 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   Planner-AI-Lambda-Message-Handler-Serverless
 
-Globals:
-  Function:
-    Timeout: 60
-    Runtime: python3.10
-    Architectures:
-      - arm64
-
 Resources:
   AppLambda:
     Type: AWS::Serverless::Function
@@ -18,13 +11,10 @@ Resources:
       ImageUri: 'applambda:latest'
       MemorySize: 1024
       Description: 'App lambda endpoint (see tags for more info).'
+      Timeout: 60
+      Architectures:
+        - arm64
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./
       DockerTag: latest
-
-Outputs:
-  TelegramApi:
-    Description: "Lambda Function URL for Pl-AI Msg API"
-    Value:
-      Fn::GetAtt: AppLambdaUrl.FunctionUrl

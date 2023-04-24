@@ -2,10 +2,10 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "Planner-AI-Lambda-Message-Handler"
-s3_prefix = "Planner-AI-Lambda-Message-Handler"
+stack_name = "Planner-AI-Lambda-Message-Handler-img"
+s3_prefix = "Planner-AI-Lambda-Message-Handler-img"
 region = "eu-central-1"
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
-image_repositories = []
+image_repositories = ["AppLambda=980385927495.dkr.ecr.eu-central-1.amazonaws.com/plannerailambdamessagehandler5bd46414/applambda5a906834repo"]
 resolve_s3 = true
