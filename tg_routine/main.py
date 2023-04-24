@@ -12,7 +12,7 @@ secrets = get_aws_secrets('DEV_SECRETS_NAME')
 TOKEN = secrets['TG_BOT_TOKEN']
 application = ApplicationBuilder().token(TOKEN).build()
 
-from tg_routine.DatabaseHelpers import set_db_connection
+from DatabaseHelpers import set_db_connection
 db_connection = set_db_connection()
 
 from commandHandlers import *

@@ -3,7 +3,6 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "Planner-AI-Lambda-Message-Handler"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1q7y9uu7czp2p"
 s3_prefix = "Planner-AI-Lambda-Message-Handler"
 region = "eu-central-1"
 capabilities = "CAPABILITY_IAM"
