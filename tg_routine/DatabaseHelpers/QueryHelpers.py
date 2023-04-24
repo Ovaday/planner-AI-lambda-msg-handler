@@ -1,9 +1,9 @@
 from asgiref.sync import sync_to_async
-from ServiceHelpers import Chat
+from .DBModels import Chat
+from .DMLHelpers import insert_chat
 
 
 def __execute_query(cursor, query: str, single_record: bool):
-    cursor.execute(query)
     cursor.execute(query)
     if single_record:
         return cursor.fetchone()
@@ -19,12 +19,19 @@ def __get_raw_chat(connection, chat_id: int):
             f"where chat_id = '{chat_id}';"
     results= __execute_query(cursor, query, True)
     cursor.close()
+    if not results:
+        return None
     return Chat(*results)
 
 
-def get_chat(connection, chat_id: int):
+def get_chat(connection, chat_id: int, update):
     chat = __get_raw_chat(connection, chat_id)
-    # ToDO: resolve what to do when there is no chat
+    print('get chat')
+    print(chat)
+    if not chat:
+        print('not chat')
+        insert_chat(connection, chat_id, update)
+        chat = __get_raw_chat(connection, chat_id)
     return chat
 
 
@@ -36,6 +43,8 @@ def get_users_by_role(connection, role: str):
             f"where role = '{role}';"
     results= __execute_query(cursor, query, False)
     cursor.close()
+    if not results or len(results) == 0:
+        return []
     chats = [Chat(*row) for row in results]
     return chats
 

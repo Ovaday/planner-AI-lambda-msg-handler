@@ -2,6 +2,7 @@ import sentry_sdk, asyncio
 from sentry_sdk import capture_exception, set_user
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from telegram.ext import ApplicationBuilder
+import psycopg2
 
 from requestHelpers import *
 
@@ -11,7 +12,18 @@ secrets = get_aws_secrets('DEV_SECRETS_NAME')
 TOKEN = secrets['TG_BOT_TOKEN']
 application = ApplicationBuilder().token(TOKEN).build()
 
-from DatabaseHelpers.ServiceHelpers import set_db_connection
+
+def set_db_connection():
+    DB_USER = secrets['DB_USER']
+    DB_PASSWORD = secrets['DB_PASSWORD']
+    DB_HOST = secrets['DB_HOST']
+    DB_NAME = secrets['DB_NAME']
+
+    connection = psycopg2.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST,
+                                  database=DB_NAME)
+    return connection
+
+
 db_connection = set_db_connection()
 
 from commandHandlers import *
