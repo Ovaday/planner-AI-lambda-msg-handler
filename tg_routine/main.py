@@ -30,7 +30,7 @@ db_connection = set_db_connection()
 
 from commandHandlers import *
 from messageHandlers import *
-#from audioHandlers import audio
+from audioHandlers import audio
 from messageHelpers import message_specific
 
 sentry_sdk.init(
@@ -69,8 +69,8 @@ async def main(event, context):
     echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
     application.add_handler(echo_handler)
 
-    #audio_handler = MessageHandler(filters.VOICE, audio)
-    #application.add_handler(audio_handler)
+    audio_handler = MessageHandler(filters.VOICE, audio)
+    application.add_handler(audio_handler)
 
     try:
         await application.initialize()

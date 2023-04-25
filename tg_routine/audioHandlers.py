@@ -1,6 +1,5 @@
 import openai
 
-from DatabaseHelpers.ServiceHelpers import resolve_main_params
 from main import *
 from commandHandlers import start
 from serviceHelpers import check_is_chat_approved
@@ -39,12 +38,22 @@ async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def process_voice_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     voice_message = await context.bot.get_file(update.message.voice.file_id)
-    voice_file = io.BytesIO()
-    await voice_message.download_to_memory(voice_file)
-    voice_file.seek(0)
-    voice_file.name = f'voice_{update.message.chat_id}_{update.message.message_id}.ogg'
+    #voice_file = io.BytesIO()
+    #await voice_message.download_to_memory(voice_file)
+    local_path = "/tmp/voice_message.ogg"
+    voice_message.download(local_path)
+    s3_client = boto3.client("s3")
 
-    data, samplerate = sf.read(voice_file)
+    s3_bucket = os.environ["VOICE_MESSAGES_BUCKET"]
+    s3_prefix = f'voice_{update.message.chat_id}_{update.message.message_id}.ogg'
+    remote_s3_path = os.path.join("s3://", s3_bucket, s3_prefix)
+    print(remote_s3_path)
+    s3_client.upload_file(local_path, s3_bucket, s3_prefix)
+
+    #voice_file.seek(0)
+    #voice_file.name = f'voice_{update.message.chat_id}_{update.message.message_id}.ogg'
+
+    data, samplerate = sf.read(local_path)
     mem_file = io.BytesIO()
     sf.write(mem_file, data, samplerate, 'PCM_16', format='wav')
     mem_file.seek(0)
