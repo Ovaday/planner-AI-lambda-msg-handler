@@ -8,7 +8,7 @@ import psycopg2
 from requestHelpers import *
 
 dynamodb_client = boto3.client('dynamodb')
-
+labels_cache = {}
 secrets = get_aws_secrets('DEV_SECRETS_NAME')
 TOKEN = secrets['TG_BOT_TOKEN']
 application = ApplicationBuilder().token(TOKEN).build()
@@ -28,7 +28,6 @@ def set_db_connection():
 db_connection = set_db_connection()
 
 from translationHelpers import retrieve_labels
-labels_cache = retrieve_labels()
 
 from commandHandlers import *
 from messageHandlers import *
@@ -44,7 +43,11 @@ sentry_sdk.init(
 )
 
 format = {"message_specific": {"chat_id": 123, "message": "test"}}
+
+
 def lambda_handler(event, context):
+    retrieve_labels()
+    print(labels_cache)
     print(event['body'])
     body_json = json.loads(event['body'])
     if 'message_specific' in body_json:
@@ -52,7 +55,8 @@ def lambda_handler(event, context):
         if 'chat_id' in msg_specific and 'message' in msg_specific:
             try:
                 return asyncio.get_event_loop().run_until_complete(message_specific(msg_specific['chat_id'],
-                                                                                    application, msg_specific['message']))
+                                                                                    application,
+                                                                                    msg_specific['message']))
             except Exception as exc:
                 set_user({"id": f"{msg_specific['chat_id']}"})
                 capture_exception(exc)

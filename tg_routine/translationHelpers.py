@@ -1,7 +1,11 @@
+from asgiref.sync import async_to_sync
+
 from main import *
 
 
-def retrieve_labels():
+@async_to_sync
+async def retrieve_labels():
+    print('retrieve_labels')
     response = dynamodb_client.scan(TableName=secrets['DYNAMO_DB_TRANSLATIONS'])
 
     items = response['Items']
@@ -10,10 +14,13 @@ def retrieve_labels():
                                         ExclusiveStartKey=response['LastEvaluatedKey'])
         items.extend(response['Items'])
 
+    main.labels_cache = parse_translations_list(items)
+
     return parse_translations_list(items)
 
 
 def get_remote_label(label: str, language: str):
+    print('get_remote_label')
     data = dynamodb_client.get_item(
         TableName=secrets['DYNAMO_DB_TRANSLATIONS'],
         Key={
@@ -38,7 +45,11 @@ def parse_translations_list(lst):
 
 
 def get_label(label: str, language: str):
+    print('get_label')
+    print(labels_cache)
     if label not in labels_cache or language not in labels_cache[label]:
+        print(label not in labels_cache)
+        print(label not in labels_cache or language not in labels_cache[label])
         return get_remote_label(label, language)
 
     return labels_cache[label][language]
