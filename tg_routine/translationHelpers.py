@@ -14,9 +14,11 @@ async def retrieve_labels():
                                         ExclusiveStartKey=response['LastEvaluatedKey'])
         items.extend(response['Items'])
 
-    main.labels_cache = parse_translations_list(items)
+    labels = parse_translations_list(items)
+    for label in labels:
+        labels_cache[label] = labels[label]
 
-    return parse_translations_list(items)
+    return labels
 
 
 def get_remote_label(label: str, language: str):

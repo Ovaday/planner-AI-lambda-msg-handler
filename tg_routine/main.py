@@ -47,7 +47,6 @@ format = {"message_specific": {"chat_id": 123, "message": "test"}}
 
 def lambda_handler(event, context):
     retrieve_labels()
-    print(labels_cache)
     print(event['body'])
     body_json = json.loads(event['body'])
     if 'message_specific' in body_json:
