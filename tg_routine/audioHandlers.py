@@ -1,12 +1,12 @@
 import openai
+import io
+import json
+from pydub import AudioSegment
 
 from main import *
 from commandHandlers import start
 from serviceHelpers import check_is_chat_approved
-
-import io
-import json
-from pydub import AudioSegment
+from DatabaseHelpers.DMLHelpers import tick_expenses
 
 
 async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -51,9 +51,10 @@ async def process_voice_message(update: Update, context: ContextTypes.DEFAULT_TY
     return mem_file, duration
 
 
-async def voice_to_text(tg_chat, voice_file, duration):
+async def voice_to_text(chat, voice_file, duration: float):
+    print(duration)
     openai.api_key = secrets['OPENAI_API']
     model = "whisper-1" # there is no other model
     response = openai.Audio.transcribe(model, voice_file)
-    #ToDo: await async_tick_expenses(tg_chat.chat_id, duration, model)
+    await tick_expenses(chat, duration, model)
     return response.text

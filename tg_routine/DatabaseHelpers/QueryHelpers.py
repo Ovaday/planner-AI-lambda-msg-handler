@@ -1,5 +1,7 @@
-from asgiref.sync import sync_to_async
-from .DBModels import Chat
+from typing import Optional
+
+from main import *
+from .DBModels import all_fields
 from .DMLHelpers import insert_chat
 
 
@@ -11,13 +13,12 @@ def __execute_query(cursor, query: str, single_record: bool):
         return cursor.fetchall()
 
 
-def __get_raw_chat(connection, chat_id: int):
+def __get_raw_chat(connection, chat_id: int) -> Optional[Chat]:
     cursor = connection.cursor()
-    query = f"select id, chat_id, counter, is_approved, role, language, tokens_used, last_conversation, username," \
-            f" current_mode, expenses " \
+    query = f"select {all_fields} " \
             f"from tg_bot_chat " \
             f"where chat_id = '{chat_id}';"
-    results= __execute_query(cursor, query, True)
+    results = __execute_query(cursor, query, True)
     cursor.close()
     if not results:
         return None
@@ -37,8 +38,7 @@ def get_chat(connection, chat_id: int, update):
 
 def get_users_by_role(connection, role: str):
     cursor = connection.cursor()
-    query = f"select id, chat_id, counter, is_approved, role, language, tokens_used, last_conversation, username," \
-            f" current_mode, expenses " \
+    query = f"select {all_fields} " \
             f"from tg_bot_chat " \
             f"where role = '{role}';"
     results= __execute_query(cursor, query, False)

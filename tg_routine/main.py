@@ -4,6 +4,8 @@ from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 import psycopg2
+from asgiref.sync import sync_to_async, async_to_sync
+
 
 from requestHelpers import *
 
@@ -27,6 +29,7 @@ def set_db_connection():
 
 db_connection = set_db_connection()
 
+from DatabaseHelpers.DBModels import Chat
 from translationHelpers import retrieve_labels
 
 from commandHandlers import *
