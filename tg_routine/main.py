@@ -7,7 +7,6 @@ import psycopg2
 
 from requestHelpers import *
 
-
 dynamodb_client = boto3.client('dynamodb')
 
 secrets = get_aws_secrets('DEV_SECRETS_NAME')
@@ -27,6 +26,9 @@ def set_db_connection():
 
 
 db_connection = set_db_connection()
+
+from translationHelpers import retrieve_labels
+labels_cache = retrieve_labels()
 
 from commandHandlers import *
 from messageHandlers import *
