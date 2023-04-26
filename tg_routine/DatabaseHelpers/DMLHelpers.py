@@ -6,10 +6,10 @@ def insert_chat(connection, chat_id, update):
         username = update.effective_chat.username
 
     cursor = connection.cursor()
-    query = f"""INSERT INTO tg_bot_chat(chat_id, counter, is_approved, role, language, tokens_used, whisper_tokens,
-                            last_conversation, username, current_mode, expenses) 
-                            VALUES({chat_id}, 0, False, 'none', 'english', 0, 0, '', '{username}', 'chatGPT', 0);"""
-    result = cursor.execute(query)
+    query = """INSERT INTO tg_bot_chat(chat_id, counter, is_approved, role, language, tokens_used, whisper_tokens,
+                                        last_conversation, username, current_mode, expenses) 
+                                        VALUES(%s, 0, False, 'none', 'english', 0, 0, '', %s, 'chatGPT', 0);"""
+    result = cursor.execute(query, (chat_id, username))
     connection.commit()
     cursor.close()
     return result
@@ -50,29 +50,42 @@ async def update_chat(connection, chat: Chat):
     return result
 
 
-async def tick_expenses(chat: Chat, tokens, model: str, is_classification=False):
+async def tick_expenses(chat: Chat, tokens, model: str, do_save=True, is_classification=False):
     if "whisper" in model:
-        chat.whisper_tokens += tokens
-        print(type(chat.expenses))
-        print(type(tokens))
+        chat.whisper_tokens += tokens / 60
         chat.expenses += 0.006 * tokens / 60
+        if not do_save:
+            return chat
+        return await chat.save()
 
+    curr_op_tokens = tokens / 1000
+    chat.tokens_used += curr_op_tokens
 
     if "ada" in model:
         if is_classification:
-            chat.expenses += 0.0016 * tokens / 1000
+            chat.expenses += 0.0016 * curr_op_tokens
         else:
-            chat.expenses += 0.0004 * tokens / 1000
+            chat.expenses += 0.0004 * curr_op_tokens
     elif "babbage" in model:
         if is_classification:
-            chat.expenses += 0.0024 * tokens / 1000
+            chat.expenses += 0.0024 * curr_op_tokens
         else:
-            chat.expenses += 0.0005 * tokens / 1000
+            chat.expenses += 0.0005 * curr_op_tokens
     elif "davinci" in model:
-        chat.expenses += 0.02 * tokens / 1000
+        chat.expenses += 0.02 * curr_op_tokens
     else:
-        chat.expenses += 0.002 * tokens / 1000
-    await update_chat(db_connection, chat)
+        chat.expenses += 0.002 * curr_op_tokens
+
+    if not do_save:
+        return chat
+    return await chat.save()
+
+
+async def assign_last_conversation(chat: Chat, conversation, do_save=True):
+    chat.last_conversation = conversation
+    if not do_save:
+        return chat
+    return await chat.save()
 
 async_tick_expenses = async_to_sync(tick_expenses)
 async_update_chat = async_to_sync(update_chat)

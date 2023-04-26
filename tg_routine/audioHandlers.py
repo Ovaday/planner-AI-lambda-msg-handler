@@ -6,7 +6,7 @@ from pydub import AudioSegment
 from main import *
 from commandHandlers import start
 from serviceHelpers import check_is_chat_approved
-from DatabaseHelpers.DMLHelpers import tick_expenses
+from DatabaseHelpers.DMLHelpers import tick_expenses, assign_last_conversation
 
 
 async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -21,9 +21,9 @@ async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         mem_file, duration = await process_voice_message(update, context)
         print('processed_voice_message')
-        recognized_text = await voice_to_text(chat, mem_file, duration)
+        recognized_text, chat = await voice_to_text(chat, mem_file, duration)
         print('recognized_text')
-        #await async_assign_last_conversation(chat_id, recognized_text)
+        await assign_last_conversation(chat, recognized_text)
         await context.bot.send_message(reply_to_message_id=message.message_id, chat_id=chat_id,
                                        text=f"""Recognized text: {recognized_text}
 
@@ -56,5 +56,5 @@ async def voice_to_text(chat, voice_file, duration: float):
     openai.api_key = secrets['OPENAI_API']
     model = "whisper-1" # there is no other model
     response = openai.Audio.transcribe(model, voice_file)
-    await tick_expenses(chat, duration, model)
-    return response.text
+    chat = await tick_expenses(chat, duration, model, False)
+    return response.text, chat

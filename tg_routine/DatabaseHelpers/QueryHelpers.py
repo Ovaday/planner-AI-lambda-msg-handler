@@ -5,8 +5,8 @@ from .DBModels import all_fields
 from .DMLHelpers import insert_chat
 
 
-def __execute_query(cursor, query: str, single_record: bool):
-    cursor.execute(query)
+def __execute_query(cursor, query: str, parameters, single_record: bool):
+    cursor.execute(query, parameters)
     if single_record:
         return cursor.fetchone()
     else:
@@ -15,10 +15,8 @@ def __execute_query(cursor, query: str, single_record: bool):
 
 def __get_raw_chat(connection, chat_id: int) -> Optional[Chat]:
     cursor = connection.cursor()
-    query = f"select {all_fields} " \
-            f"from tg_bot_chat " \
-            f"where chat_id = '{chat_id}';"
-    results = __execute_query(cursor, query, True)
+    query = f"select {all_fields} from tg_bot_chat where chat_id = '%s';"
+    results = __execute_query(cursor, query, (chat_id,), True)
     cursor.close()
     if not results:
         return None
@@ -38,10 +36,8 @@ def get_chat(connection, chat_id: int, update):
 
 def get_users_by_role(connection, role: str):
     cursor = connection.cursor()
-    query = f"select {all_fields} " \
-            f"from tg_bot_chat " \
-            f"where role = '{role}';"
-    results= __execute_query(cursor, query, False)
+    query = f"select {all_fields} from tg_bot_chat where role = %s;"
+    results = __execute_query(cursor, query, (role,), False)
     cursor.close()
     if not results or len(results) == 0:
         return []
