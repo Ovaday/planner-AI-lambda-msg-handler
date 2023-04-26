@@ -6,7 +6,7 @@ from serviceHelpers import check_is_chat_approved
 
 import io
 import json
-#import soundfile as sf
+from pydub import AudioSegment
 
 
 async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -37,23 +37,14 @@ async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def process_voice_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from pydub import AudioSegment
     voice_message = await context.bot.get_file(update.message.voice.file_id)
-    local_path = "/tmp/voice_message.ogg"
-    await voice_message.download_to_drive(local_path)
-
-    ogg_audio = AudioSegment.from_file(local_path, format="ogg")
+    mem_file = io.BytesIO()
+    await voice_message.download_to_memory(mem_file)
+    mem_file.seek(0)
+    ogg_audio = AudioSegment.from_file(mem_file, format="ogg")
 
     # Convert the audio file to wav format
-    mem_file = io.BytesIO()
     ogg_audio.export(mem_file, format="wav")
-    #wav_audio.export(mem_file, format="wav")
-
-
-    #data, samplerate = sf.read(local_path)
-    #mem_file = io.BytesIO()
-    #sf.write(mem_file, data, samplerate, 'PCM_16', format='wav')
-    #mem_file.seek(0)
     duration = ogg_audio.duration_seconds
     mem_file.seek(0)
     mem_file.name = f'voice_{update.message.chat_id}_{update.message.message_id}.wav'
