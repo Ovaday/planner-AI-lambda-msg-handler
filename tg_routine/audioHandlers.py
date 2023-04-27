@@ -7,13 +7,13 @@ from main import *
 from commandHandlers import start
 from serviceHelpers import check_is_chat_approved
 from DatabaseHelpers.DMLHelpers import tick_expenses, assign_last_conversation
+from sqsHandler import queue_message
 
 
 async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message, chat_id, chat = await resolve_main_params(db_connection, update)
 
     if not chat:
-        print('no chat')
         return await start(update, context)
     if not await check_is_chat_approved(chat, context, message):
         return
@@ -29,11 +29,12 @@ async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         Processing, please wait...""")
 
-        #json_update = json.loads(update.to_json())
-        #json_update = audio_json_to_text(json_update, recognized_text)
-        #print('audio_json_to_text')
-        #new_update = Update.de_json(json_update, context)
-        #await chat_gpt_message(new_update, context)
+        json_update = json.loads(update.to_json())
+        json_update = audio_json_to_text(json_update, recognized_text)
+        new_update = Update.de_json(json_update, context)
+        await queue_message("chatGPT", new_update.to_json(), "update")
+        await context.bot.send_message(reply_to_message_id=message.message_id, chat_id=chat_id,
+                                       text=f"""Added to SQS""")
 
 
 async def process_voice_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -58,3 +59,12 @@ async def voice_to_text(chat, voice_file, duration: float):
     response = openai.Audio.transcribe(model, voice_file)
     chat = await tick_expenses(chat, duration, model, False)
     return response.text, chat
+
+def audio_json_to_text(json_update, recognized_text):
+    del json_update['message']['voice']
+    json_update['message']['text'] = recognized_text
+    json_update['message']['group_chat_created'] = False
+    json_update['message']['delete_chat_photo'] = False
+    json_update['message']['supergroup_chat_created'] = False
+    json_update['message']['channel_chat_created'] = False
+    return json_update

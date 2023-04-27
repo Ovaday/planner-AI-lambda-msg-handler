@@ -9,12 +9,12 @@ from asgiref.sync import sync_to_async, async_to_sync
 
 from requestHelpers import *
 
-dynamodb_client = boto3.client('dynamodb')
+dynamodb_client = boto3.client('dynamodb', region_name=os.environ.get('REGION'))
+sqs_client = boto3.client('sqs', region_name=os.environ.get('REGION'))
 labels_cache = {}
 secrets = get_aws_secrets('DEV_SECRETS_NAME')
 TOKEN = secrets['TG_BOT_TOKEN']
 application = ApplicationBuilder().token(TOKEN).build()
-
 
 def set_db_connection():
     DB_USER = secrets['DB_USER']
@@ -28,6 +28,7 @@ def set_db_connection():
 
 
 db_connection = set_db_connection()
+
 
 from DatabaseHelpers.DBModels import Chat
 from translationHelpers import retrieve_labels
