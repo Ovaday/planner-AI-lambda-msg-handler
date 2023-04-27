@@ -7,7 +7,7 @@ from main import *
 from commandHandlers import start
 from serviceHelpers import check_is_chat_approved
 from DatabaseHelpers.DMLHelpers import tick_expenses, assign_last_conversation
-from sqsHandler import queue_message
+from sqsHandler import queue_message, SQS_TYPE_OPENAI
 
 
 async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -32,7 +32,7 @@ async def audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
         json_update = json.loads(update.to_json())
         json_update = audio_json_to_text(json_update, recognized_text)
         new_update = Update.de_json(json_update, context)
-        await queue_message("chatGPT", new_update.to_json(), "update")
+        await queue_message(SQS_TYPE_OPENAI, new_update.to_json(), "update")
         await context.bot.send_message(reply_to_message_id=message.message_id, chat_id=chat_id,
                                        text=f"""Added to SQS""")
 

@@ -1,5 +1,9 @@
 from main import *
 
+SQS_TYPE_OPENAI = 'openai'
+SQS_TYPE_TG = "telegram"
+SQS_TYPE_VERCEL = "vercel"
+
 async def queue_message(recipient: str, message: str, msg_type:str, args=None):
     message_attributes = {
         'recipient': {
