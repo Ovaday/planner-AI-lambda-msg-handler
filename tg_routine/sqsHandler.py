@@ -4,7 +4,8 @@ SQS_TYPE_OPENAI = 'openai'
 SQS_TYPE_TG = "telegram"
 SQS_TYPE_VERCEL = "vercel"
 
-async def queue_message(recipient: str, message: str, msg_type:str, args=None):
+
+async def queue_message(recipient: str, message: str, msg_type: str, args=None):
     message_attributes = {
         'recipient': {
             'DataType': 'String',
@@ -20,8 +21,8 @@ async def queue_message(recipient: str, message: str, msg_type:str, args=None):
             message_attributes[arg] = args[arg]
 
     return sqs_client.send_message(
-                QueueUrl=secrets["SQS_V1_URL"],
-                MessageBody=message,
-                DelaySeconds=0,
-                MessageAttributes=message_attributes
-            )
+        QueueUrl=secrets["SQS_V1_URL"],
+        MessageBody=message,
+        DelaySeconds=0,
+        MessageAttributes=message_attributes
+    )
